@@ -1,9 +1,30 @@
-import { type InstanceStateName } from "@aws-sdk/client-ec2";
 import { Button, Chip, Tabs, Tab } from "@nextui-org/react";
 import Head from "next/head";
-
+import { createServerSideHelpers } from "@trpc/react-query/server";
 import { api } from "~/utils/api";
 import { Snippet } from "@nextui-org/react";
+import { type GetServerSidePropsContext } from "next";
+import { appRouter } from "~/server/api/root";
+import superjson from "superjson";
+import { InstanceStateName } from "@aws-sdk/client-ec2";
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const helpers = createServerSideHelpers({
+    router: appRouter,
+    ctx: context,
+    transformer: superjson,
+  });
+
+  await helpers.ec2.getInstance.prefetch();
+
+  return {
+    props: {
+      trpcState: helpers.dehydrate(),
+    },
+  };
+};
 
 export default function Home() {
   const instance = api.ec2.getInstance.useQuery();
