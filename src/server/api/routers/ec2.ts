@@ -8,9 +8,15 @@ import {
 } from "@aws-sdk/client-ec2"; // ES Modules import
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
+const credantials = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+};
+
 export const ec2Router = createTRPCRouter({
   getInstance: publicProcedure.query(async () => {
     const client = new EC2Client({
+      credentials: credantials,
       region: "eu-west-3",
     });
     const instance = await client.send(
@@ -27,6 +33,7 @@ export const ec2Router = createTRPCRouter({
 
   stopInstance: publicProcedure.mutation(async () => {
     const client = new EC2Client({
+      credentials: credantials,
       region: "eu-west-3",
     });
     const instance = await client.send(
@@ -58,6 +65,7 @@ export const ec2Router = createTRPCRouter({
 
   startInstance: publicProcedure.mutation(async () => {
     const client = new EC2Client({
+      credentials: credantials,
       region: "eu-west-3",
     });
     const instance = await client.send(
