@@ -10,7 +10,9 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const ec2Router = createTRPCRouter({
   getInstance: publicProcedure.query(async () => {
-    const client = new EC2Client();
+    const client = new EC2Client({
+      region: "eu-west-3",
+    });
     const instance = await client.send(
       new DescribeInstancesCommand({
         Filters: [
@@ -24,7 +26,9 @@ export const ec2Router = createTRPCRouter({
   }),
 
   stopInstance: publicProcedure.mutation(async () => {
-    const client = new EC2Client();
+    const client = new EC2Client({
+      region: "eu-west-3",
+    });
     const instance = await client.send(
       new DescribeInstancesCommand({
         Filters: [
@@ -49,13 +53,13 @@ export const ec2Router = createTRPCRouter({
       { InstanceIds: [instance.Reservations[0].Instances[0].InstanceId!] },
     );
 
-    console.log(e);
-
     return true;
   }),
 
   startInstance: publicProcedure.mutation(async () => {
-    const client = new EC2Client();
+    const client = new EC2Client({
+      region: "eu-west-3",
+    });
     const instance = await client.send(
       new DescribeInstancesCommand({
         Filters: [
@@ -79,8 +83,6 @@ export const ec2Router = createTRPCRouter({
       { client, maxWaitTime: 300, minDelay: 1, maxDelay: 5 },
       { InstanceIds: [instance.Reservations[0].Instances[0].InstanceId!] },
     );
-
-    console.log(e);
 
     return true;
   }),
