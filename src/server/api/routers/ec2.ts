@@ -15,6 +15,8 @@ const credantials = {
 
 export const ec2Router = createTRPCRouter({
   getInstance: publicProcedure.query(async () => {
+    console.log(credantials.accessKeyId);
+
     const client = new EC2Client({
       credentials: credantials,
       region: "eu-west-3",
