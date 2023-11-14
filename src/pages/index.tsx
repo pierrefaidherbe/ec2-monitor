@@ -6,7 +6,8 @@ import { Snippet } from "@nextui-org/react";
 import { type GetServerSidePropsContext } from "next";
 import { appRouter } from "~/server/api/root";
 import superjson from "superjson";
-import { InstanceStateName } from "@aws-sdk/client-ec2";
+
+import { useEffect, useState } from "react";
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext,
@@ -28,7 +29,19 @@ export const getServerSideProps = async (
 
 export default function Home() {
   const instance = api.ec2.getInstance.useQuery();
+
   const queryClient = api.useUtils();
+
+  const [expectedState, setExpectedState] = useState<boolean>(
+    !!instance.data?.awsServer && !!instance.data?.minecraftServer,
+  );
+
+  const isExpectedState = () => {
+    return (
+      (!!instance.data?.awsServer && !!instance.data?.minecraftServer) ===
+      expectedState
+    );
+  };
 
   const stopMutation = api.ec2.stopInstance.useMutation({
     onSuccess: () => queryClient.invalidate(),
@@ -40,22 +53,34 @@ export default function Home() {
 
   const handleStart = () => {
     startMutation.mutate();
+    setExpectedState(true);
   };
 
   const handleStop = () => {
     stopMutation.mutate();
+    setExpectedState(false);
   };
 
-  const renderServerState = (state?: InstanceStateName) => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      queryClient.invalidate().catch((err) => {
+        console.error(err);
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [queryClient]);
+
+  const renderServerState = (state: boolean) => {
     switch (state) {
-      case "running":
+      case true:
         return (
           <Chip color="success" variant="dot">
             Running
           </Chip>
         );
 
-      case "stopped":
+      case false:
         return (
           <Chip color="danger" variant="dot">
             Stopped
@@ -67,25 +92,46 @@ export default function Home() {
     }
   };
 
-  const renderStartStopServerButton = (state?: InstanceStateName) => {
+  const renderMinecraftServerState = (state: boolean) => {
     switch (state) {
-      case "running":
+      case true:
+        return (
+          <Chip color="success" variant="dot">
+            Online
+          </Chip>
+        );
+
+      case false:
+        return (
+          <Chip color="danger" variant="dot">
+            Offline
+          </Chip>
+        );
+
+      default:
+        break;
+    }
+  };
+
+  const renderStartStopServerButton = (state: boolean) => {
+    switch (state) {
+      case true:
         return (
           <Button
             color="primary"
             onClick={handleStop}
-            isLoading={stopMutation.isLoading}
+            isLoading={!isExpectedState()}
           >
             Stop
           </Button>
         );
 
-      case "stopped":
+      case false:
         return (
           <Button
             color="primary"
             onClick={handleStart}
-            isLoading={startMutation.isLoading}
+            isLoading={!isExpectedState()}
           >
             Start
           </Button>
@@ -107,21 +153,27 @@ export default function Home() {
         <Tabs className="mb-5">
           <Tab key="server" title="Server">
             {instance.data && (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">Server is </span>
-                  {renderServerState(instance.data.State?.Name)}
+                  {renderServerState(instance.data.awsServer)}
+                  <span className="text-lg"> Minecraft Server is </span>
+                  {renderMinecraftServerState(instance.data.minecraftServer)}
                 </div>
-                {instance.data.State?.Name === "running" && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg">Minecraft Server IP:</span>
-                    <Snippet symbol="">
-                      {instance.data.PublicIpAddress + ":25565"}
-                    </Snippet>
-                  </div>
+                {instance.data.awsServer && instance.data.minecraftServer && (
+                  <>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-lg">Minecraft Server IP:</span>
+                      <Snippet symbol="">
+                        {instance.data.minecraftServerIp + ":25565"}
+                      </Snippet>
+                    </div>
+                  </>
                 )}
                 <div className="mt-3">
-                  {renderStartStopServerButton(instance.data.State?.Name)}
+                  {renderStartStopServerButton(
+                    instance.data.awsServer && instance.data.minecraftServer,
+                  )}
                 </div>
               </div>
             )}

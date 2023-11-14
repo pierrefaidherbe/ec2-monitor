@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.449.0",
+    "@network-utils/tcp-ping": "^1.2.3",
     "@nextui-org/react": "^2.2.9",
     "@t3-oss/env-nextjs": "^0.7.0",
     "@tanstack/react-query": "^4.32.6",

@@ -8,6 +8,9 @@ dependencies:
   '@aws-sdk/client-ec2':
     specifier: ^3.449.0
     version: 3.449.0
+  '@network-utils/tcp-ping':
+    specifier: ^1.2.3
+    version: 1.2.3
   '@nextui-org/react':
     specifier: ^2.2.9
     version: 2.2.9(@types/react@18.2.37)(framer-motion@10.16.4)(react-dom@18.2.0)(react@18.2.0)(tailwind-variants@0.1.18)(tailwindcss@3.3.5)
@@ -746,6 +749,11 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  /@network-utils/tcp-ping@1.2.3:
+    resolution: {integrity: sha512-YKSnfvKGabggw+r6xVk9mxF5AdvDSL0pXX2EydkaBpIspcOokK7HsG7N+i94eaakDnlVFxN2EcXEh0UYOSUKvw==}
+    engines: {node: '>=8.10.0'}
+    dev: false
 
   /@next/env@14.0.2:
     resolution: {integrity: sha512-HAW1sljizEaduEOes/m84oUqeIDAUYBR1CDwu2tobNlNDFP3cSm9d6QsOsGeNlIppU1p/p1+bWbYCbvwjFiceA==}
